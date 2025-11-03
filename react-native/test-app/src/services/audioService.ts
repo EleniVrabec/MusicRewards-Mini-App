@@ -135,6 +135,26 @@ export const getTrackDuration = async (): Promise<number> => {
   }
 };
 
+// Set playback rate (speed)
+export const setPlaybackRate = async (rate: number): Promise<void> => {
+  try {
+    await TrackPlayer.setRate(rate);
+  } catch (error) {
+    console.error('Set playback rate error:', error);
+    throw error;
+  }
+};
+
+// Get current playback rate
+export const getPlaybackRate = async (): Promise<number> => {
+  try {
+    return await TrackPlayer.getRate();
+  } catch (error) {
+    console.error('Get playback rate error:', error);
+    return 1.0; // Default rate
+  }
+};
+
 // Handle playback errors
 export const handlePlaybackError = (error: any) => {
   console.error('Playback error:', error);
