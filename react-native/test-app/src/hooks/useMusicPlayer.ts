@@ -10,6 +10,13 @@ import TrackPlayer, {
 import { useMusicStore, selectCurrentTrack, selectIsPlaying } from '../stores/musicStore';
 import { useUserStore } from '../stores/userStore';
 import type { MusicChallenge, UseMusicPlayerReturn } from '../types';
+import {
+  resetPlayer,
+  addTrack,
+  playTrack,
+  pauseTrack,
+  seekToPosition,
+} from '../services/audioService';
 
 export const useMusicPlayer = (): UseMusicPlayerReturn => {
   // TrackPlayer hooks
@@ -76,8 +83,10 @@ export const useMusicPlayer = (): UseMusicPlayerReturn => {
       setError(null);
       
       // Reset and add new track
-      await TrackPlayer.reset();
-      await TrackPlayer.add({
+    //  await TrackPlayer.reset();
+    // await TrackPlayer.add({
+    await resetPlayer();
+    await addTrack({
         id: track.id,
         url: track.audioUrl,
         title: track.title,
@@ -86,7 +95,8 @@ export const useMusicPlayer = (): UseMusicPlayerReturn => {
       });
       
       // Start playback
-      await TrackPlayer.play();
+     // await TrackPlayer.play();
+      await playTrack();
       setCurrentTrack(track);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Playback failed';
@@ -99,7 +109,8 @@ export const useMusicPlayer = (): UseMusicPlayerReturn => {
 
   const pause = useCallback(async () => {
     try {
-      await TrackPlayer.pause();
+     // await TrackPlayer.pause();
+      await pauseTrack();
     } catch (err) {
       console.error('Pause error:', err);
     }
@@ -107,7 +118,8 @@ export const useMusicPlayer = (): UseMusicPlayerReturn => {
 
   const seekTo = useCallback(async (seconds: number) => {
     try {
-      await TrackPlayer.seekTo(seconds);
+     // await TrackPlayer.seekTo(seconds);
+      await seekToPosition(seconds);
     } catch (err) {
       console.error('Seek error:', err);
     }
@@ -115,7 +127,8 @@ export const useMusicPlayer = (): UseMusicPlayerReturn => {
 
   const resume = useCallback(async () => {
     try {
-      await TrackPlayer.play();
+     // await TrackPlayer.play();
+      await playTrack();
     } catch (err) {
       console.error('Resume error:', err);
     }
