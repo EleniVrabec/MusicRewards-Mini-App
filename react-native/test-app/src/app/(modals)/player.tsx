@@ -1,18 +1,31 @@
 // Player modal - Full-screen audio player (Expo Router modal)
-import React from 'react';
+import React, { useEffect } from 'react';
 import { 
   View, 
   Text, 
   StyleSheet, 
   TouchableOpacity,
   SafeAreaView,
-  Alert
 } from 'react-native';
-import { GlassCard, GlassButton } from '../../components/ui/GlassCard';
+import { GlassCard } from '../../components/ui/GlassCard';
+import { GlassButton } from '../../components/ui/GlassButton';
 import { useMusicPlayer } from '../../hooks/useMusicPlayer';
 import { THEME } from '../../constants/theme';
+import { usePointsCounter } from '../../hooks/usePointsCounter';
+import { PointsCounter } from '../../components/ui/PointsCounter';
+import { useToast } from '../../hooks/useToast';
 
 export default function PlayerModal() {
+  const { 
+    currentPoints,
+    pointsEarned,
+    progress: pointsProgress,
+    isActive,
+    startCounting,
+    stopCounting,
+    resetProgress,  
+  } = usePointsCounter();
+
   const { 
     currentTrack, 
     isPlaying, 
@@ -25,6 +38,24 @@ export default function PlayerModal() {
     loading,
     error 
   } = useMusicPlayer();
+  
+  const { showError } = useToast();
+
+  useEffect(() => {
+    if (currentTrack && isPlaying && !isActive) {
+      startCounting({
+        totalPoints: currentTrack.points,
+        durationSeconds: currentTrack.duration,
+        challengeId: currentTrack.id,
+      });
+    }
+  
+    // if it stops, stop counting
+    if ((!isPlaying || !currentTrack) && isActive) {
+      stopCounting();
+    }
+  }, [currentTrack, isPlaying, isActive, startCounting, stopCounting]);
+  
 
   const formatTime = (seconds: number): string => {
     const minutes = Math.floor(seconds / 60);
@@ -54,9 +85,12 @@ export default function PlayerModal() {
     }
   };
 
-  if (error) {
-    Alert.alert('Playback Error', error);
-  }
+  // Show error toast when there's a playback error
+  useEffect(() => {
+    if (error) {
+      showError(error);
+    }
+  }, [error, showError]);
 
   if (!currentTrack) {
     return (
@@ -119,7 +153,20 @@ export default function PlayerModal() {
           <Text style={styles.progressPercentage}>
             {Math.round(getProgress())}% Complete
           </Text>
+
+
         </GlassCard>
+        {currentTrack && (
+          <GlassCard style={styles.pointsCounterCard}>
+              <PointsCounter
+                targetPoints={currentTrack.points}
+                earnedPoints={pointsEarned}
+                progressPercent={pointsProgress}
+                isActive={isActive}
+              />
+          </GlassCard>
+        )}
+
 
         {/* Controls */}
         <GlassCard style={styles.controlsCard}>
@@ -217,6 +264,9 @@ const styles = StyleSheet.create({
     color: THEME.colors.text.tertiary,
     textAlign: 'center',
     marginBottom: THEME.spacing.lg,
+  },
+  pointsCounterCard: {
+    // Card styling handled by GlassCard
   },
   pointsContainer: {
     alignItems: 'center',
