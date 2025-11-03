@@ -16,6 +16,8 @@ import {
   playTrack,
   pauseTrack,
   seekToPosition,
+  setPlaybackRate as setPlaybackRateService,
+  getPlaybackRate,
 } from '../services/audioService';
 
 export const useMusicPlayer = (): UseMusicPlayerReturn => {
@@ -26,6 +28,8 @@ export const useMusicPlayer = (): UseMusicPlayerReturn => {
   // Local state
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isBuffering, setIsBuffering] = useState(false);
+  const [playbackRate, setPlaybackRateState] = useState<number>(1.0);
   
   // Zustand store selectors
   const currentTrack = useMusicStore(selectCurrentTrack);
@@ -46,9 +50,13 @@ export const useMusicPlayer = (): UseMusicPlayerReturn => {
       stateValue = playbackState.state;
     }
     const isCurrentlyPlaying = stateValue === State.Playing;
+    const isCurrentlyBuffering = stateValue === State.Buffering;
+    
     if (isCurrentlyPlaying !== isPlaying) {
       setIsPlaying(isCurrentlyPlaying);
     }
+    
+    setIsBuffering(isCurrentlyBuffering);
   }, [playbackState, isPlaying, setIsPlaying]);
 
   // Update position and calculate progress/points
@@ -134,6 +142,30 @@ export const useMusicPlayer = (): UseMusicPlayerReturn => {
     }
   }, []);
 
+  const setPlaybackRate = useCallback(async (rate: number) => {
+    try {
+      await setPlaybackRateService(rate);
+      setPlaybackRateState(rate);
+    } catch (err) {
+      console.error('Set playback rate error:', err);
+      const errorMessage = err instanceof Error ? err.message : 'Failed to set playback rate';
+      setError(errorMessage);
+    }
+  }, []);
+
+  // Load initial playback rate on mount
+  useEffect(() => {
+    const loadInitialRate = async () => {
+      try {
+        const rate = await getPlaybackRate();
+        setPlaybackRateState(rate);
+      } catch (err) {
+        console.error('Load playback rate error:', err);
+      }
+    };
+    loadInitialRate();
+  }, []);
+
   // Extract value for isPlaying return as well
   let stateValue: any = playbackState;
   if (typeof playbackState === 'object' && playbackState !== null && 'state' in playbackState) {
@@ -150,5 +182,8 @@ export const useMusicPlayer = (): UseMusicPlayerReturn => {
     resume,
     loading,
     error,
+    isBuffering,
+    playbackRate,
+    setPlaybackRate,
   };
 };
