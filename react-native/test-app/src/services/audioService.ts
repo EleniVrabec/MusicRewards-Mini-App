@@ -4,12 +4,12 @@ import TrackPlayer, { Capability, AppKilledPlaybackBehavior } from 'react-native
 // TrackPlayer service setup - call this in your App.tsx or _layout.tsx
 export const setupTrackPlayer = async (): Promise<void> => {
   try {
-    // Check if player is already initialized
+   /*  // Check if player is already initialized
     const isSetup = await TrackPlayer.isServiceRunning();
     if (isSetup) {
       return;
     }
-
+ */
     // Setup the player with proper configuration
     await TrackPlayer.setupPlayer({
       waitForBuffer: true,
