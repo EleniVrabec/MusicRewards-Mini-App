@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { GlassCard } from '../../components/ui/GlassCard';
 import { GlassButton } from '../../components/ui/GlassButton';
+import { LoadingSpinner } from '../../components/ui/LoadingSpinner';
 import { useMusicPlayer } from '../../hooks/useMusicPlayer';
 import { THEME } from '../../constants/theme';
 import { usePointsCounter } from '../../hooks/usePointsCounter';
@@ -36,7 +37,10 @@ export default function PlayerModal() {
     resume, 
     seekTo,
     loading,
-    error 
+    error,
+    isBuffering,
+    playbackRate,
+    setPlaybackRate
   } = useMusicPlayer();
   
   const { showError } = useToast();
@@ -107,6 +111,16 @@ export default function PlayerModal() {
 
   return (
     <SafeAreaView style={styles.container}>
+      {/* Loading Overlay - Shows when track is loading */}
+      {loading && (
+        <View style={styles.loadingOverlay}>
+          <GlassCard style={styles.loadingCard}>
+            <LoadingSpinner size="large" color={THEME.colors.primary} />
+            <Text style={styles.loadingText}>Loading track...</Text>
+          </GlassCard>
+        </View>
+      )}
+
       <View style={styles.content}>
         {/* Track Info */}
         <GlassCard style={styles.trackInfoCard}>
@@ -132,6 +146,7 @@ export default function PlayerModal() {
               const percentage = (locationX / width) * 100;
               handleSeek(percentage);
             }}
+            disabled={loading || isBuffering}
           >
             <View style={styles.progressBackground}>
               <View 
@@ -140,18 +155,29 @@ export default function PlayerModal() {
                   { width: `${getProgress()}%` }
                 ]} 
               />
+              {/* Buffering Indicator */}
+              {isBuffering && (
+                <View style={styles.bufferingIndicator}>
+                  <LoadingSpinner size="small" color={THEME.colors.text.primary} />
+                </View>
+              )}
             </View>
           </TouchableOpacity>
 
           {/* Time Display */}
           <View style={styles.timeContainer}>
             <Text style={styles.timeText}>{formatTime(currentPosition)}</Text>
+            {isBuffering && (
+              <View style={styles.bufferingBadge}>
+                <Text style={styles.bufferingText}>Buffering...</Text>
+              </View>
+            )}
             <Text style={styles.timeText}>{formatTime(duration)}</Text>
           </View>
 
           {/* Progress Percentage */}
           <Text style={styles.progressPercentage}>
-            {Math.round(getProgress())}% Complete
+            {isBuffering ? 'Buffering...' : `${Math.round(getProgress())}% Complete`}
           </Text>
 
 
@@ -197,6 +223,25 @@ export default function PlayerModal() {
           {error && (
             <Text style={styles.errorText}>{error}</Text>
           )}
+        </GlassCard>
+
+        {/* Playback Speed Selector */}
+        <GlassCard style={styles.speedCard}>
+          <Text style={styles.speedLabel}>Playback Speed</Text>
+          <View style={styles.speedButtons}>
+            {[0.5, 1.0, 1.25, 2.0].map((rate) => (
+              <GlassButton
+                key={rate}
+                title={rate === 1.0 ? '1x' : `${rate}x`}
+                onPress={() => setPlaybackRate(rate)}
+                variant={playbackRate === rate ? 'primary' : 'secondary'}
+                style={styles.speedButton}
+              />
+            ))}
+          </View>
+          <Text style={styles.currentSpeedText}>
+            Current: {playbackRate === 1.0 ? '1x' : `${playbackRate}x`}
+          </Text>
         </GlassCard>
 
         {/* Challenge Progress */}
@@ -362,5 +407,72 @@ const styles = StyleSheet.create({
   challengeProgress: {
     fontSize: THEME.fonts.sizes.sm,
     color: THEME.colors.text.secondary,
+  },
+  loadingOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1000,
+  },
+  loadingCard: {
+    padding: THEME.spacing.xl,
+    alignItems: 'center',
+    minWidth: 200,
+  },
+  loadingText: {
+    marginTop: THEME.spacing.md,
+    fontSize: THEME.fonts.sizes.md,
+    color: THEME.colors.text.primary,
+  },
+  bufferingIndicator: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+  },
+  bufferingBadge: {
+    paddingHorizontal: THEME.spacing.sm,
+    paddingVertical: THEME.spacing.xs,
+    backgroundColor: THEME.colors.primary,
+    borderRadius: THEME.borderRadius.sm,
+  },
+  bufferingText: {
+    fontSize: THEME.fonts.sizes.xs,
+    color: THEME.colors.text.primary,
+    fontWeight: '600',
+  },
+  speedCard: {
+    // Card styling handled by GlassCard
+  },
+  speedLabel: {
+    fontSize: THEME.fonts.sizes.md,
+    fontWeight: '600',
+    color: THEME.colors.text.primary,
+    textAlign: 'center',
+    marginBottom: THEME.spacing.md,
+  },
+  speedButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: THEME.spacing.sm,
+  },
+  speedButton: {
+    flex: 0.22,
+    marginHorizontal: THEME.spacing.xs,
+  },
+  currentSpeedText: {
+    fontSize: THEME.fonts.sizes.sm,
+    color: THEME.colors.text.secondary,
+    textAlign: 'center',
+    marginTop: THEME.spacing.xs,
   },
 });
