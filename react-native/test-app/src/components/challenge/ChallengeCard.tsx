@@ -1,9 +1,11 @@
 // ChallengeCard component - Individual challenge display
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { GlassCard, GlassButton } from '../ui/GlassCard';
+import { GlassCard } from '../ui/GlassCard';
+import { GlassButton } from '../ui/GlassButton';
 import { THEME } from '../../constants/theme';
 import type { MusicChallenge } from '../../types';
+import { router } from 'expo-router';
 
 interface ChallengeCardProps {
   challenge: MusicChallenge;
@@ -18,6 +20,12 @@ export const ChallengeCard: React.FC<ChallengeCardProps> = ({
   isCurrentTrack = false,
   isPlaying = false,
 }) => {
+  const openDetail = () => {
+    router.push({
+      pathname: '/(modals)/challenge-detail',
+      params: { id: challenge.id },
+    });
+  };
   const formatDuration = (seconds: number): string => {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
@@ -52,6 +60,7 @@ export const ChallengeCard: React.FC<ChallengeCardProps> = ({
           : THEME.glass.gradientColors.card
       }
     >
+      <TouchableOpacity activeOpacity={0.8} onPress={openDetail}>
       <View style={styles.header}>
         <View style={styles.titleSection}>
           <Text style={styles.title}>{challenge.title}</Text>
@@ -108,6 +117,7 @@ export const ChallengeCard: React.FC<ChallengeCardProps> = ({
         disabled={challenge.completed}
         style={styles.playButton}
       />
+      </TouchableOpacity>
     </GlassCard>
   );
 };
