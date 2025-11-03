@@ -32,6 +32,9 @@ export interface UseMusicPlayerReturn {
   seekTo: (seconds: number) => void;
   loading: boolean;
   error: string | null;
+  isBuffering: boolean;
+  playbackRate: number;
+  setPlaybackRate: (rate: number) => Promise<void>;
 }
 
 export interface UsePointsCounterReturn {
