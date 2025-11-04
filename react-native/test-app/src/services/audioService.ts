@@ -48,7 +48,6 @@ export const setupTrackPlayer = async (): Promise<void> => {
       ],
     });
 
-    console.log('TrackPlayer setup complete');
   } catch (error) {
     console.error('TrackPlayer setup error:', error);
     throw error;
