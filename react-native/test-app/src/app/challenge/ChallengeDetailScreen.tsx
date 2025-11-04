@@ -26,6 +26,7 @@ export default function ChallengeDetailScreen({ challenge }: ChallengeDetailScre
   const {
     play,
     resume,
+    pause,
     currentTrack,
     isPlaying,
   } = useMusicPlayer();
@@ -38,17 +39,26 @@ export default function ChallengeDetailScreen({ challenge }: ChallengeDetailScre
   const buttonTitle = challenge.completed
     ? 'Challenge Completed'
     : isThisCurrent && isPlaying
-    ? 'Playing...'
+    ? 'Pause & Open Player'
     : isThisCurrent && !isPlaying
-    ? 'Resume'
-    : 'Play this challenge';
-
+    ? 'Resume & Open Player'
+    : 'Play Challenge';
 
   const handlePrimaryPress = async () => {
-    // Already completed -> do nothing
-    if (challenge.completed) return;
+    // Already completed -> just open player to view
+    if (challenge.completed) {
+      router.push('/(modals)/player');
+      return;
+    }
 
-    // If it's the same track but paused -> just resume
+    // If it's the same track and playing -> pause and open player
+    if (isThisCurrent && isPlaying) {
+      await pause();
+      router.push('/(modals)/player');
+      return;
+    }
+
+    // If it's the same track but paused -> resume and open player
     if (isThisCurrent && !isPlaying) {
       await resume();
       router.push('/(modals)/player');
