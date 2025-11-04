@@ -38,6 +38,7 @@ export const useMusicStore = create<MusicStore>()(
       //challenge reset for testing
       resetChallenges: () => {
         // Reset all challenges to initial state (for testing)
+        // Also clear playback state to prevent "Resume" button showing after reset
         set({
           challenges: SAMPLE_CHALLENGES.map((challenge) => ({
             ...challenge,
@@ -45,6 +46,9 @@ export const useMusicStore = create<MusicStore>()(
             progress: 0,
             completedAt: undefined,
           })),
+          currentTrack: null,    // Clear current track
+          isPlaying: false,       // Clear playing state
+          currentPosition: 0,     // Reset position
         });
       },
 
