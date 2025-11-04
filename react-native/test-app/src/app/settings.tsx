@@ -80,6 +80,8 @@ export default function SettingsScreen() {
             size={20} 
             color={THEME.colors.text.primary} 
           />}
+          accessibilityLabel={`Switch to ${themeMode === 'dark' ? 'light' : 'dark'} mode`}
+          accessibilityHint="Double tap to toggle between light and dark theme"
         />
       </GlassCard>
 
@@ -102,6 +104,8 @@ export default function SettingsScreen() {
             size={20} 
             color={THEME.colors.text.primary} 
           />}
+          accessibilityLabel="Reset all progress and challenges"
+          accessibilityHint="Double tap to clear all points, completed challenges, and progress. This action cannot be undone."
         />
       </GlassCard>
     </ScrollView>
