@@ -47,7 +47,7 @@ export default function PlayerModal() {
     setPlaybackRate
   } = useMusicPlayer();
   
-  const { showError } = useToast();
+  const { showError, showSuccess } = useToast();
   const THEME = useTheme();
   const styles = createStyles(THEME);
   const [confettiTrigger, setConfettiTrigger] = useState(0);
@@ -88,16 +88,20 @@ export default function PlayerModal() {
     }
   }, [pointsEarned, currentTrack]);
 
-  // Trigger confetti when challenge completes
+  // Trigger confetti and toast when challenge completes
   useEffect(() => {
     if (currentTrack?.completed && !prevCompletedRef.current) {
       // Challenge just completed - trigger big confetti celebration!
       setConfettiTrigger((prev) => prev + 1);
+      // Show success toast with delay so it appears above confetti, and longer duration
+      setTimeout(() => {
+        showSuccess(`Challenge completed! You earned ${currentTrack.points} points! 🎉`, 5000);
+      }, 300); // Small delay to ensure toast appears above confetti animation
       prevCompletedRef.current = true;
     } else if (!currentTrack?.completed) {
       prevCompletedRef.current = false;
     }
-  }, [currentTrack?.completed]);
+  }, [currentTrack?.completed, currentTrack?.points, showSuccess]);
   
 
   const formatTime = (seconds: number): string => {
@@ -207,12 +211,6 @@ export default function PlayerModal() {
                   { width: `${getProgress()}%` }
                 ]} 
               />
-              {/* Buffering Indicator */}
-              {isBuffering && (
-                <View style={styles.bufferingIndicator}>
-                  <LoadingSpinner size="small" color={THEME.colors.text.primary} />
-                </View>
-              )}
             </View>
           </TouchableOpacity>
 
@@ -228,9 +226,11 @@ export default function PlayerModal() {
           </View>
 
           {/* Progress Percentage */}
-          <Text style={styles.progressPercentage}>
-            {isBuffering ? 'Buffering...' : `${Math.round(getProgress())}% Complete`}
-          </Text>
+          {!isBuffering && (
+            <Text style={styles.progressPercentage}>
+              {Math.round(getProgress())}% Complete
+            </Text>
+          )}
         </GlassCard>
 
         {/* Points Counter - Remove outer GlassCard wrapper */}
@@ -530,16 +530,6 @@ const createStyles = (THEME: ReturnType<typeof useTheme>) => StyleSheet.create({
     marginTop: THEME.spacing.md,
     fontSize: THEME.fonts.sizes.md,
     color: THEME.colors.text.primary,
-  },
-  bufferingIndicator: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: THEME.colors.glass + '99', // ~60% opacity (99 hex)
   },
   bufferingBadge: {
     paddingHorizontal: THEME.spacing.sm,
