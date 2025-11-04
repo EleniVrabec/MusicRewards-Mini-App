@@ -54,16 +54,9 @@ export const triggerHaptic = async (type: HapticType = HapticType.Light): Promis
       default:
         await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     }
-    
-    if (__DEV__) {
-      console.log(`[Haptics] Triggered: ${type}`);
-    }
   } catch (error) {
     // Silently fail if haptics not available (e.g., simulator, unsupported device)
-    // In production, you might want to log this for debugging
-    if (__DEV__) {
-      console.warn('[Haptics] Error:', error);
-    }
+    // No logging needed
   }
 };
 
