@@ -5,24 +5,24 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { GlassCard } from '../ui/GlassCard';
 import { GlassButton } from '../ui/GlassButton';
 import { useTheme } from '../../hooks/useTheme';
+import { useThemeStore } from '../../stores/themeStore';
 import type { MusicChallenge } from '../../types';
 import { router } from 'expo-router';
 
 interface ChallengeCardProps {
   challenge: MusicChallenge;
-  onPlay: (challenge: MusicChallenge) => void;
   isCurrentTrack?: boolean;
   isPlaying?: boolean;
 }
 
 const ChallengeCardComponent: React.FC<ChallengeCardProps> = ({
   challenge,
-  onPlay,
   isCurrentTrack = false,
   isPlaying = false,
 }) => {
   const THEME = useTheme();
-  const styles = useMemo(() => createStyles(THEME), [THEME]);
+  const themeMode = useThemeStore((state) => state.themeMode);
+  const styles = useMemo(() => createStyles(THEME), [themeMode]);
   
   const openDetail = useCallback(() => {
     router.push(`/challenge/${challenge.id}`);
@@ -41,25 +41,28 @@ const ChallengeCardComponent: React.FC<ChallengeCardProps> = ({
       case 'hard': return THEME.colors.primary;
       default: return THEME.colors.text.secondary;
     }
-  }, [challenge.difficulty, THEME.colors]);
+  }, [challenge.difficulty, themeMode]);
 
   const buttonTitle = useMemo(() => {
-    if (challenge.completed) return 'Completed';
+    if (challenge.completed) return 'Challenge Completed';
     if (isCurrentTrack && isPlaying) return 'Playing...';
-    if (isCurrentTrack && !isPlaying) return 'Resume';
-    return 'Play Challenge';
+    return 'Start Challenge';
   }, [challenge.completed, isCurrentTrack, isPlaying]);
 
   const buttonIcon = useMemo(() => {
     if (challenge.completed) {
       return <MaterialIcons name="check-circle" size={20} color={THEME.colors.text.primary} />;
     }
-    return null;
-  }, [challenge.completed, THEME.colors.text.primary]);
+    if (isCurrentTrack && isPlaying) {
+      return <MaterialIcons name="headphones" size={20} color={THEME.colors.text.primary} />;
+    }
+    return <MaterialIcons name="play-arrow" size={20} color={THEME.colors.text.primary} />;
+  }, [challenge.completed, isCurrentTrack, isPlaying, themeMode]);
 
-  const handlePlayPress = useCallback(() => {
-    onPlay(challenge);
-  }, [onPlay, challenge]);
+  const handleButtonPress = useCallback(() => {
+    // Always navigate to detail screen - no direct play from card
+    openDetail();
+  }, [openDetail]);
 
   const formattedDuration = useMemo(
     () => formatDuration(challenge.duration),
@@ -70,7 +73,7 @@ const ChallengeCardComponent: React.FC<ChallengeCardProps> = ({
     () => isCurrentTrack
       ? THEME.glass.gradientColors.primary
       : THEME.glass.gradientColors.card,
-    [isCurrentTrack, THEME.glass.gradientColors]
+    [isCurrentTrack, themeMode]
   );
 
   const cardStyle = useMemo(
@@ -157,13 +160,12 @@ const ChallengeCardComponent: React.FC<ChallengeCardProps> = ({
 
       <GlassButton
         title={buttonTitle}
-        onPress={handlePlayPress}
+        onPress={handleButtonPress}
         variant={isCurrentTrack ? 'primary' : 'secondary'}
-        disabled={challenge.completed}
         style={styles.playButton}
         icon={buttonIcon}
         accessibilityLabel={challenge.completed ? `Challenge completed: ${challenge.title}` : `${buttonTitle}: ${challenge.title}`}
-        accessibilityHint={challenge.completed ? 'This challenge is already completed' : 'Double tap to play this challenge'}
+        accessibilityHint={challenge.completed ? "This challenge is already completed" : "Double tap to view challenge details and start playing"}
       />
       </TouchableOpacity>
     </GlassCard>
@@ -178,8 +180,7 @@ export const ChallengeCard = React.memo(ChallengeCardComponent, (prevProps, next
     prevProps.challenge.progress === nextProps.challenge.progress &&
     prevProps.challenge.completed === nextProps.challenge.completed &&
     prevProps.isCurrentTrack === nextProps.isCurrentTrack &&
-    prevProps.isPlaying === nextProps.isPlaying &&
-    prevProps.onPlay === nextProps.onPlay
+    prevProps.isPlaying === nextProps.isPlaying
   );
 });
 
