@@ -59,28 +59,52 @@ export const useMusicStore = create<MusicStore>()(
           return;
         }
         const clampedProgress = Math.max(0, Math.min(progress, 100));
-        set((state) => ({
-          challenges: state.challenges.map((challenge) =>
+        set((state) => {
+          const updatedChallenges = state.challenges.map((challenge) =>
             challenge.id === challengeId
               ? { ...challenge, progress: clampedProgress }
               : challenge
-          ),
-        }));
+          );
+          const updatedChallenge = updatedChallenges.find(c => c.id === challengeId);
+          return {
+            challenges: updatedChallenges,
+            // Also update currentTrack if it's the same challenge
+            currentTrack: state.currentTrack?.id === challengeId && updatedChallenge
+              ? updatedChallenge
+              : state.currentTrack,
+          };
+        });
       },
 
       markChallengeComplete: (challengeId: string) => {
-        set((state) => ({
-          challenges: state.challenges.map((challenge) =>
-            challenge.id === challengeId
-              ? { 
-                  ...challenge, 
-                  completed: true, 
-                  progress: 100,
-                  completedAt: new Date().toISOString()
-                }
-              : challenge
-          ),
-        }));
+        set((state) => {
+          const updatedChallenge = state.challenges.find(c => c.id === challengeId);
+          const completedChallenge = updatedChallenge 
+            ? { 
+                ...updatedChallenge, 
+                completed: true, 
+                progress: 100,
+                completedAt: new Date().toISOString()
+              }
+            : null;
+
+          return {
+            challenges: state.challenges.map((challenge) =>
+              challenge.id === challengeId
+                ? { 
+                    ...challenge, 
+                    completed: true, 
+                    progress: 100,
+                    completedAt: new Date().toISOString()
+                  }
+                : challenge
+            ),
+            // Also update currentTrack if it's the same challenge
+            currentTrack: state.currentTrack?.id === challengeId && completedChallenge
+              ? completedChallenge
+              : state.currentTrack,
+          };
+        });
       },
 
       setIsPlaying: (playing: boolean) => {
