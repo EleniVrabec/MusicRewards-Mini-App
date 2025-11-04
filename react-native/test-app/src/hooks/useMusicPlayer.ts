@@ -19,6 +19,7 @@ import {
   setPlaybackRate as setPlaybackRateService,
   getPlaybackRate,
 } from '../services/audioService';
+import { hapticService } from '../utils/hapticFeedback';
 
 export const useMusicPlayer = (): UseMusicPlayerReturn => {
   // TrackPlayer hooks
@@ -44,11 +45,10 @@ export const useMusicPlayer = (): UseMusicPlayerReturn => {
 
   // Track playback state changes
   useEffect(() => {
-    // Some versions of usePlaybackState may return an object, so extract value if needed
-    let stateValue: any = playbackState;
-    if (typeof playbackState === 'object' && playbackState !== null && 'state' in playbackState) {
-      stateValue = playbackState.state;
-    }
+    // Extract state value (usePlaybackState returns State enum directly)
+    const stateValue: State = typeof playbackState === 'object' && playbackState !== null && 'state' in playbackState
+      ? (playbackState as { state: State }).state
+      : (playbackState as State);
     const isCurrentlyPlaying = stateValue === State.Playing;
     const isCurrentlyBuffering = stateValue === State.Buffering;
     
@@ -70,6 +70,9 @@ export const useMusicPlayer = (): UseMusicPlayerReturn => {
       
       // Check if track is completed (90% threshold to account for small timing issues)
       if (progressPercentage >= 90 && !currentTrack.completed) {
+        // Trigger success haptic feedback for challenge completion
+        hapticService.challengeComplete();
+        
         markChallengeComplete(currentTrack.id);
         completeChallenge(currentTrack.id);
         addPoints(currentTrack.points);
@@ -91,10 +94,8 @@ export const useMusicPlayer = (): UseMusicPlayerReturn => {
       setError(null);
       
       // Reset and add new track
-    //  await TrackPlayer.reset();
-    // await TrackPlayer.add({
-    await resetPlayer();
-    await addTrack({
+      await resetPlayer();
+      await addTrack({
         id: track.id,
         url: track.audioUrl,
         title: track.title,
@@ -102,8 +103,15 @@ export const useMusicPlayer = (): UseMusicPlayerReturn => {
         duration: track.duration,
       });
       
+      // Restore saved position if track has progress
+      // Calculate position in seconds from progress percentage
+      if (track.progress > 0 && track.progress < 100 && track.duration > 0) {
+        const savedPosition = (track.progress / 100) * track.duration;
+        // Seek to saved position before starting playback
+        await seekToPosition(savedPosition);
+      }
+      
       // Start playback
-     // await TrackPlayer.play();
       await playTrack();
       setCurrentTrack(track);
     } catch (err) {
@@ -153,26 +161,29 @@ export const useMusicPlayer = (): UseMusicPlayerReturn => {
     }
   }, []);
 
-  // Load initial playback rate on mount
+  // Load initial playback rate when a track is loaded
+  // Don't load on mount since TrackPlayer might not be initialized yet
   useEffect(() => {
+    if (!currentTrack) return; // Wait until we have a track
+    
     const loadInitialRate = async () => {
       try {
         const rate = await getPlaybackRate();
         setPlaybackRateState(rate);
       } catch (err) {
-        console.error('Load playback rate error:', err);
+        // Silently fail - default to 1.0 (already set in state)
+        // Error is expected if TrackPlayer isn't initialized yet
       }
     };
     loadInitialRate();
-  }, []);
+  }, [currentTrack]);
 
   // Extract value for isPlaying return as well
-  let stateValue: any = playbackState;
-  if (typeof playbackState === 'object' && playbackState !== null && 'state' in playbackState) {
-    stateValue = playbackState.state;
-  }
+  const finalStateValue: State = typeof playbackState === 'object' && playbackState !== null && 'state' in playbackState
+    ? (playbackState as { state: State }).state
+    : (playbackState as State);
   return {
-    isPlaying: stateValue === State.Playing,
+    isPlaying: finalStateValue === State.Playing,
     currentTrack,
     currentPosition: progress.position,
     duration: progress.duration,
