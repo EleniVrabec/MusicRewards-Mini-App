@@ -1,23 +1,48 @@
 // Profile screen - User progress and stats
-import React from 'react';
+import React, { useLayoutEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons';
+import { useNavigation, router } from 'expo-router';
+import { TouchableOpacity } from 'react-native';
 import { GlassCard } from '../../components/ui/GlassCard';
 import { useMusicStore, selectChallenges } from '../../stores/musicStore';
 import { useUserStore, selectTotalPoints, selectCompletedChallenges } from '../../stores/userStore';
-import { THEME } from '../../constants/theme';
+import { useTheme } from '../../hooks/useTheme';
 
 export default function ProfileScreen() {
+  const navigation = useNavigation();
   const challenges = useMusicStore(selectChallenges);
   const totalPoints = useUserStore(selectTotalPoints);
   const completedChallenges = useUserStore(selectCompletedChallenges);
+  const THEME = useTheme();
+  const styles = createStyles(THEME);
 
   const totalChallenges = challenges.length;
   const completionRate = totalChallenges > 0 ? (completedChallenges.length / totalChallenges) * 100 : 0;
 
-  return (
-    <ScrollView style={styles.container}>
-      <Text style={styles.header}>Your Progress</Text>
+  // Add settings button to header
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <TouchableOpacity
+          onPress={() => router.push('/settings')}
+          style={{ marginRight: 16 }}
+          accessibilityLabel="Settings"
+        >
+          <MaterialIcons 
+            name="settings" 
+            size={24} 
+            color={THEME.colors.text.primary} 
+          />
+        </TouchableOpacity>
+      ),
+    });
+  }, [navigation, THEME.colors.text.primary]);
 
+  return (
+    <View style={styles.container}>
+    <Text style={styles.header}>Your Progress</Text>
+    <ScrollView >
       {/* Stats Overview */}
       <GlassCard style={styles.statsCard}>
         <View style={styles.statsGrid}>
@@ -45,12 +70,11 @@ export default function ProfileScreen() {
             <View key={challenge.id} style={styles.challengeItem}>
               <View style={styles.challengeHeader}>
                 <Text style={styles.challengeTitle}>{challenge.title}</Text>
-                <Text style={[
-                  styles.challengeStatus,
-                  { color: isCompleted ? THEME.colors.secondary : THEME.colors.text.secondary }
-                ]}>
-                  {isCompleted ? '✅' : '⏳'}
-                </Text>
+                <MaterialIcons 
+                  name={isCompleted ? "check-circle" : "schedule"} 
+                  size={20} 
+                  color={isCompleted ? THEME.colors.secondary : THEME.colors.text.secondary}
+                />
               </View>
               <View style={styles.progressBar}>
                 <View 
@@ -74,21 +98,21 @@ export default function ProfileScreen() {
         
         {totalPoints >= 100 && (
           <View style={styles.achievement}>
-            <Text style={styles.achievementIcon}>🏆</Text>
+            <MaterialIcons name="emoji-events" size={24} color={THEME.colors.accent} style={styles.achievementIcon} />
             <Text style={styles.achievementText}>First 100 Points!</Text>
           </View>
         )}
         
         {completedChallenges.length >= 1 && (
           <View style={styles.achievement}>
-            <Text style={styles.achievementIcon}>🎵</Text>
+            <MaterialIcons name="music-note" size={24} color={THEME.colors.primary} style={styles.achievementIcon} />
             <Text style={styles.achievementText}>Music Lover</Text>
           </View>
         )}
         
         {completionRate >= 100 && (
           <View style={styles.achievement}>
-            <Text style={styles.achievementIcon}>🌟</Text>
+            <MaterialIcons name="star" size={24} color={THEME.colors.secondary} style={styles.achievementIcon} />
             <Text style={styles.achievementText}>Perfect Score!</Text>
           </View>
         )}
@@ -100,14 +124,16 @@ export default function ProfileScreen() {
         )}
       </GlassCard>
     </ScrollView>
+    </View>
   );
 }
 
-const styles = StyleSheet.create({
+const createStyles = (THEME: ReturnType<typeof useTheme>) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: THEME.colors.background,
     paddingHorizontal: THEME.spacing.md,
+    //paddingTop: THEME.spacing.xxl,
   },
   header: {
     fontSize: THEME.fonts.sizes.xxl,
@@ -118,6 +144,7 @@ const styles = StyleSheet.create({
   },
   statsCard: {
     marginBottom: THEME.spacing.md,
+    marginTop: THEME.spacing.sm,
   },
   statsGrid: {
     flexDirection: 'row',
@@ -163,7 +190,7 @@ const styles = StyleSheet.create({
   },
   progressBar: {
     height: 6,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: THEME.colors.glass, // Use glass color which adapts to theme
     borderRadius: 3,
     overflow: 'hidden',
     marginBottom: THEME.spacing.xs,
@@ -186,7 +213,6 @@ const styles = StyleSheet.create({
     marginBottom: THEME.spacing.sm,
   },
   achievementIcon: {
-    fontSize: THEME.fonts.sizes.xl,
     marginRight: THEME.spacing.md,
   },
   achievementText: {
