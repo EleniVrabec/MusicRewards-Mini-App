@@ -25,63 +25,6 @@ interface ChallengeListProps {
   refreshing?: boolean;
 }
 
-const createStyles = (THEME: ReturnType<typeof useTheme>) => StyleSheet.create({
-  centerContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: THEME.spacing.lg,
-  },
-  listContainer: {
-    paddingBottom: THEME.spacing.xl,
-  },
-  errorCard: {
-    padding: THEME.spacing.xl,
-    alignItems: 'center',
-  },
-  errorTitle: {
-    fontSize: THEME.fonts.sizes.lg,
-    fontWeight: 'bold',
-    color: THEME.colors.text.primary,
-    marginBottom: THEME.spacing.sm,
-  },
-  errorMessage: {
-    fontSize: THEME.fonts.sizes.sm,
-    color: THEME.colors.text.secondary,
-    textAlign: 'center',
-    marginBottom: THEME.spacing.md,
-  },
-  retryText: {
-    fontSize: THEME.fonts.sizes.sm,
-    color: THEME.colors.accent,
-    fontWeight: '600',
-    marginTop: THEME.spacing.sm,
-  },
-  emptyCard: {
-    padding: THEME.spacing.xl,
-    alignItems: 'center',
-  },
-  emptyIcon: {
-    marginBottom: THEME.spacing.md,
-    opacity: 0.7,
-  },
-  emptyTitle: {
-    fontSize: THEME.fonts.sizes.lg,
-    fontWeight: 'bold',
-    color: THEME.colors.text.primary,
-    marginBottom: THEME.spacing.sm,
-  },
-  emptyMessage: {
-    fontSize: THEME.fonts.sizes.sm,
-    color: THEME.colors.text.secondary,
-    textAlign: 'center',
-  },
-  footerLoader: {
-    paddingVertical: THEME.spacing.md,
-    alignItems: 'center',
-  },
-});
-
 const ChallengeListComponent: React.FC<ChallengeListProps> = ({
   challenges,
   loading = false,
@@ -193,4 +136,59 @@ const ChallengeListComponent: React.FC<ChallengeListProps> = ({
 // Memoize component to prevent unnecessary re-renders
 export const ChallengeList = React.memo(ChallengeListComponent);
 
-
+const createStyles = (THEME: ReturnType<typeof useTheme>) => StyleSheet.create({
+  centerContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: THEME.spacing.lg,
+  },
+  listContainer: {
+    paddingBottom: THEME.spacing.xl,
+  },
+  errorCard: {
+    padding: THEME.spacing.xl,
+    alignItems: 'center',
+  },
+  errorTitle: {
+    fontSize: THEME.fonts.sizes.lg,
+    fontWeight: 'bold',
+    color: THEME.colors.text.primary,
+    marginBottom: THEME.spacing.sm,
+  },
+  errorMessage: {
+    fontSize: THEME.fonts.sizes.sm,
+    color: THEME.colors.text.secondary,
+    textAlign: 'center',
+    marginBottom: THEME.spacing.md,
+  },
+  retryText: {
+    fontSize: THEME.fonts.sizes.sm,
+    color: THEME.colors.accent,
+    fontWeight: '600',
+    marginTop: THEME.spacing.sm,
+  },
+  emptyCard: {
+    padding: THEME.spacing.xl,
+    alignItems: 'center',
+  },
+  emptyIcon: {
+    marginBottom: THEME.spacing.md,
+    opacity: 0.7,
+  },
+  emptyTitle: {
+    fontSize: THEME.fonts.sizes.lg,
+    fontWeight: 'bold',
+    color: THEME.colors.text.primary,
+    marginBottom: THEME.spacing.sm,
+  },
+  emptyMessage: {
+    fontSize: THEME.fonts.sizes.sm,
+    color: THEME.colors.text.secondary,
+    textAlign: 'center',
+  },
+  footerLoader: {
+    paddingVertical: THEME.spacing.md,
+    alignItems: 'center',
+  },
+});
