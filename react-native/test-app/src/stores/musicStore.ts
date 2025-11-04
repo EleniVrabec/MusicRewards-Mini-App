@@ -14,6 +14,7 @@ interface MusicStore {
   
   // Actions
   loadChallenges: () => void;
+  resetChallenges: () => void; // Reset challenges for testing
   setCurrentTrack: (track: MusicChallenge) => void;
   updateProgress: (challengeId: string, progress: number) => void;
   markChallengeComplete: (challengeId: string) => void;
@@ -34,16 +35,34 @@ export const useMusicStore = create<MusicStore>()(
       loadChallenges: () => {
         set({ challenges: SAMPLE_CHALLENGES });
       },
+      //challenge reset for testing
+      resetChallenges: () => {
+        // Reset all challenges to initial state (for testing)
+        set({
+          challenges: SAMPLE_CHALLENGES.map((challenge) => ({
+            ...challenge,
+            completed: false,
+            progress: 0,
+            completedAt: undefined,
+          })),
+        });
+      },
 
       setCurrentTrack: (track: MusicChallenge) => {
         set({ currentTrack: track });
       },
 
       updateProgress: (challengeId: string, progress: number) => {
+        // Validate input: clamp between 0 and 100, handle edge cases
+        if (typeof progress !== 'number' || isNaN(progress)) {
+          console.warn('Invalid progress value:', progress);
+          return;
+        }
+        const clampedProgress = Math.max(0, Math.min(progress, 100));
         set((state) => ({
           challenges: state.challenges.map((challenge) =>
             challenge.id === challengeId
-              ? { ...challenge, progress: Math.min(progress, 100) }
+              ? { ...challenge, progress: clampedProgress }
               : challenge
           ),
         }));
@@ -69,6 +88,11 @@ export const useMusicStore = create<MusicStore>()(
       },
 
       setCurrentPosition: (position: number) => {
+        // Validate input: ensure non-negative number
+        if (typeof position !== 'number' || isNaN(position) || position < 0) {
+          console.warn('Invalid position value:', position);
+          return;
+        }
         set({ currentPosition: position });
       },
     }),
