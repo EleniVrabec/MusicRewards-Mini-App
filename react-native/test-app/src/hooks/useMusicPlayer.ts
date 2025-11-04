@@ -1,5 +1,5 @@
 // useMusicPlayer hook - Integrates react-native-track-player with Zustand
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, useRef } from 'react';
 import TrackPlayer, {
   State,
   usePlaybackState,
@@ -59,16 +59,23 @@ export const useMusicPlayer = (): UseMusicPlayerReturn => {
     setIsBuffering(isCurrentlyBuffering);
   }, [playbackState, isPlaying, setIsPlaying]);
 
-  // Update position and calculate progress/points
+  // Update position (always live)
   useEffect(() => {
     if (currentTrack && progress.position > 0) {
       setCurrentPosition(progress.position);
-      
+    }
+  }, [progress.position, currentTrack, setCurrentPosition]);
+
+  // Track previous isPlaying state to detect pause transitions
+  const prevIsPlayingRef = useRef(isPlaying);
+
+  // Update challenge progress percentage when paused
+  useEffect(() => {
+    if (currentTrack && progress.position > 0 && progress.duration > 0) {
       // Calculate progress percentage
       const progressPercentage = (progress.position / progress.duration) * 100;
-      updateProgress(currentTrack.id, progressPercentage);
       
-      // Check if track is completed (90% threshold to account for small timing issues)
+      // Always check for completion (even while playing)
       if (progressPercentage >= 90 && !currentTrack.completed) {
         // Trigger success haptic feedback for challenge completion
         hapticService.challengeComplete();
@@ -76,9 +83,26 @@ export const useMusicPlayer = (): UseMusicPlayerReturn => {
         markChallengeComplete(currentTrack.id);
         completeChallenge(currentTrack.id);
         addPoints(currentTrack.points);
+        // Update progress to 100% when completed
+        updateProgress(currentTrack.id, 100);
       }
     }
-  }, [progress.position, progress.duration, currentTrack, setCurrentPosition, updateProgress, markChallengeComplete, completeChallenge, addPoints]);
+  }, [progress.position, progress.duration, currentTrack, updateProgress, markChallengeComplete, completeChallenge, addPoints]);
+
+  // Update progress when transitioning from playing to paused
+  useEffect(() => {
+    const wasPlaying = prevIsPlayingRef.current;
+    const nowPlaying = isPlaying;
+    
+    // If we transitioned from playing to paused, update progress
+    if (wasPlaying && !nowPlaying && currentTrack && progress.position > 0 && progress.duration > 0) {
+      const progressPercentage = (progress.position / progress.duration) * 100;
+      updateProgress(currentTrack.id, progressPercentage);
+    }
+    
+    // Update ref for next comparison
+    prevIsPlayingRef.current = isPlaying;
+  }, [isPlaying, currentTrack, progress.position, progress.duration, updateProgress]);
 
   // Handle track player events
   useTrackPlayerEvents([Event.PlaybackError], (event) => {
