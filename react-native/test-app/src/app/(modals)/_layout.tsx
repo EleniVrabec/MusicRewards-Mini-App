@@ -1,8 +1,10 @@
 // Modal layout for player and other modals
 import { Stack } from 'expo-router';
-import { THEME } from '../../constants/theme';
+import { useTheme } from '../../hooks/useTheme';
 
 export default function ModalLayout() {
+  const THEME = useTheme();
+  
   return (
     <Stack
       screenOptions={{
