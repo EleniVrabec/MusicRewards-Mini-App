@@ -3,7 +3,8 @@ import React from 'react';
 import { View, ViewStyle, StyleSheet } from 'react-native';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
-import { THEME } from '../../constants/theme';
+import { useTheme } from '../../hooks/useTheme';
+import { useThemeStore } from '../../stores/themeStore';
 
 // Glass Card Component
 interface GlassCardProps {
@@ -16,42 +17,50 @@ interface GlassCardProps {
 
 export const GlassCard: React.FC<GlassCardProps> = ({
   children,
-  blurIntensity = THEME.glass.blurIntensity,
-  borderRadius = THEME.borderRadius.md,
-  gradientColors = THEME.glass.gradientColors.card,
+  blurIntensity,
+  borderRadius,
+  gradientColors,
   style,
 }) => {
-    return (
-      <View style={StyleSheet.flatten([{ borderRadius, overflow: 'hidden' }, style])}>
-        <BlurView 
-          intensity={blurIntensity} 
-          style={StyleSheet.absoluteFillObject}
-          tint="dark"
-        />
-        
-        <LinearGradient
-          colors={gradientColors as [string, string]}
-          style={StyleSheet.absoluteFillObject}
-        />
-        
-        <View 
-          style={{
-            ...StyleSheet.absoluteFillObject,
-            borderRadius,
-            borderWidth: 1,
-            borderColor: THEME.colors.border,
-          }}
-        />
-        
-        <View style={styles.contentContainer}>
-          {children}
-        </View>
+  const THEME = useTheme();
+  const themeMode = useThemeStore((state) => state.themeMode);
+  
+  const defaultBlurIntensity = blurIntensity ?? THEME.glass.blurIntensity;
+  const defaultBorderRadius = borderRadius ?? THEME.borderRadius.md;
+  const defaultGradientColors = gradientColors ?? THEME.glass.gradientColors.card;
+  const blurTint = themeMode === 'dark' ? 'dark' : 'light';
+
+  return (
+    <View style={StyleSheet.flatten([{ borderRadius: defaultBorderRadius, overflow: 'hidden' }, style])}>
+      <BlurView 
+        intensity={defaultBlurIntensity} 
+        style={StyleSheet.absoluteFillObject}
+        tint={blurTint}
+      />
+      
+      <LinearGradient
+        colors={defaultGradientColors as [string, string]}
+        style={StyleSheet.absoluteFillObject}
+      />
+      
+      <View 
+        style={{
+          ...StyleSheet.absoluteFillObject,
+          borderRadius: defaultBorderRadius,
+          borderWidth: 1,
+          borderColor: THEME.colors.border,
+        }}
+      />
+      
+      <View style={[styles.contentContainer, { padding: THEME.spacing.md }]}>
+        {children}
       </View>
-    );
+    </View>
+  );
 };
 
 const styles = StyleSheet.create({
   contentContainer: {
-    padding: THEME.spacing.md,
+    // Padding set dynamically in component
   },
 });
