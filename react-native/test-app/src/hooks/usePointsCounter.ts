@@ -49,7 +49,16 @@ export const usePointsCounter = (): UsePointsCounterReturn => {
     const progressPercentage = (progress.position / progress.duration) * 100;
     
     // Calculate earned points proportionally
-    const earnedPoints = Math.floor((progressPercentage / 100) * config.totalPoints);
+    let earnedPoints = Math.floor((progressPercentage / 100) * config.totalPoints);
+    
+    // Ensure we reach full target when near 100% (handle rounding issues)
+    // If progress is >= 99%, give full points to ensure user gets all points
+    if (progressPercentage >= 99) {
+      earnedPoints = config.totalPoints;
+    }
+    
+    // Cap at total points
+    earnedPoints = Math.min(earnedPoints, config.totalPoints);
     
     // Only update if earned more than before (prevent decreasing)
     if (earnedPoints > prevEarnedRef.current) {
