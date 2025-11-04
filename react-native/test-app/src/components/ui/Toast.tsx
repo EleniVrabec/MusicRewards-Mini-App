@@ -42,7 +42,7 @@ const ToastItem: React.FC<ToastItemProps> = ({ toast, onHide }) => {
 
   useEffect(() => {
     // Slide in and fade in
-    Animated.parallel([
+    const animation = Animated.parallel([
       Animated.spring(slideAnim, {
         toValue: 0,
         useNativeDriver: true,
@@ -54,7 +54,14 @@ const ToastItem: React.FC<ToastItemProps> = ({ toast, onHide }) => {
         duration: 200,
         useNativeDriver: true,
       }),
-    ]).start();
+    ]);
+    
+    animation.start();
+    
+    // Cleanup: stop animation on unmount
+    return () => {
+      animation.stop();
+    };
   }, []);
 
   const getToastColor = () => {
