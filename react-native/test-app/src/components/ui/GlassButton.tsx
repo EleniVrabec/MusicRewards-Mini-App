@@ -22,6 +22,8 @@ interface GlassButtonProps {
   textStyle?: TextStyle;
   variant?: 'primary' | 'secondary';
   icon?: React.ReactNode;
+  accessibilityLabel?: string;
+  accessibilityHint?: string;
 }
 
 
@@ -34,6 +36,8 @@ export const GlassButton: React.FC<GlassButtonProps> = ({
   textStyle,
   variant = 'primary',
   icon,
+  accessibilityLabel,
+  accessibilityHint,
 }) => {
   const THEME = useTheme();
   const styles = createStyles(THEME);
@@ -58,6 +62,10 @@ export const GlassButton: React.FC<GlassButtonProps> = ({
         disabled={disabled || loading}
         style={styles.buttonContent}
         activeOpacity={0.7}
+        accessibilityRole="button"
+        accessibilityLabel={accessibilityLabel || title}
+        accessibilityHint={accessibilityHint || (disabled ? 'Button is disabled' : loading ? 'Button is loading' : undefined)}
+        accessibilityState={{ disabled: disabled || loading, busy: loading }}
       >
         {loading ? (
           <ActivityIndicator color={THEME.colors.text.primary} size="small" />
