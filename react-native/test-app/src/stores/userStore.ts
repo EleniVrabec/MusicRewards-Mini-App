@@ -23,6 +23,11 @@ export const useUserStore = create<UserStore>()(
 
       // Actions
       addPoints: (points: number) => {
+        // Validate input: only add positive numbers, handle edge cases
+        if (typeof points !== 'number' || isNaN(points) || points < 0) {
+          console.warn('Invalid points value:', points);
+          return;
+        }
         set((state) => ({
           totalPoints: state.totalPoints + points,
         }));
