@@ -126,7 +126,7 @@ const styles = StyleSheet.create({
     top: 60,
     left: THEME.spacing.md,
     right: THEME.spacing.md,
-    zIndex: 9999,
+    zIndex: 10000,  // Higher than confetti (9999) to ensure visibility
     alignItems: 'center',
   },
   toastWrapper: {
