@@ -1,14 +1,16 @@
 // Settings screen - App preferences and testing
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, Alert } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import { MaterialIcons } from '@expo/vector-icons';
 import { GlassCard } from '../components/ui/GlassCard';
 import { GlassButton } from '../components/ui/GlassButton';
+import { ConfirmationModal } from '../components/ui/ConfirmationModal';
 import { useMusicStore, selectChallenges } from '../stores/musicStore';
 import { useUserStore, selectTotalPoints, selectCompletedChallenges } from '../stores/userStore';
 import { useThemeStore } from '../stores/themeStore';
 import { useToast } from '../hooks/useToast';
 import { useTheme } from '../hooks/useTheme';
+import { cleanupTrackPlayer } from '../services/audioService';
 
 export default function SettingsScreen() {
   const challenges = useMusicStore(selectChallenges);
@@ -21,6 +23,7 @@ export default function SettingsScreen() {
   const themeMode = useThemeStore((state) => state.themeMode);
   const toggleTheme = useThemeStore((state) => state.toggleTheme);
   const styles = createStyles(THEME);
+  const [showResetModal, setShowResetModal] = useState(false);
 
   const handleResetAll = () => {
     // Check if there's any data to reset
@@ -34,29 +37,28 @@ export default function SettingsScreen() {
       return;
     }
 
-    Alert.alert(
-      'Reset All Progress',
-      'This will clear all points, completed challenges, and progress. This cannot be undone.',
-      [
-        {
-          text: 'Cancel',
-          style: 'cancel',
-        },
-        {
-          text: 'Reset',
-          style: 'destructive',
-          onPress: () => {
-            try {
-              resetChallenges(); // Reset musicStore challenges
-              resetProgress(); // Reset userStore (points and completed)
-              showSuccess('All progress has been reset successfully');
-            } catch (error) {
-              showError('Failed to reset progress. Please try again.');
-            }
-          },
-        },
-      ]
-    );
+    // Show themed confirmation modal
+    setShowResetModal(true);
+  };
+
+  const handleConfirmReset = async () => {
+    try {
+      // Stop and reset TrackPlayer first
+      await cleanupTrackPlayer();
+      // Reset musicStore challenges and playback state
+      resetChallenges();
+      // Reset userStore (points and completed)
+      resetProgress();
+      setShowResetModal(false);
+      showSuccess('All progress has been reset successfully');
+    } catch (error) {
+      showError('Failed to reset progress. Please try again.');
+      setShowResetModal(false);
+    }
+  };
+
+  const handleCancelReset = () => {
+    setShowResetModal(false);
   };
 
   return (
@@ -108,6 +110,19 @@ export default function SettingsScreen() {
           accessibilityHint="Double tap to clear all points, completed challenges, and progress. This action cannot be undone."
         />
       </GlassCard>
+
+      {/* Themed Reset Confirmation Modal */}
+      <ConfirmationModal
+        visible={showResetModal}
+        title="Reset All Progress"
+        message="This will clear all points, completed challenges, and progress. This cannot be undone."
+        confirmText="Reset"
+        cancelText="Cancel"
+        onConfirm={handleConfirmReset}
+        onCancel={handleCancelReset}
+        icon="warning"
+        variant="primary"
+      />
     </ScrollView>
   );
 }
