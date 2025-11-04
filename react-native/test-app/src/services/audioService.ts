@@ -10,10 +10,13 @@ export const setupTrackPlayer = async (): Promise<void> => {
       return;
     }
  */
-    // Setup the player with proper configuration
+    // Setup the player with proper configuration for background playback
     await TrackPlayer.setupPlayer({
       waitForBuffer: true,
       maxCacheSize: 1024 * 10, // 10MB
+      // Enable background playback
+      autoUpdateMetadata: true,
+      autoHandleInterruptions: true,
     });
 
     // Configure capabilities
@@ -150,22 +153,25 @@ export const getPlaybackRate = async (): Promise<number> => {
   try {
     return await TrackPlayer.getRate();
   } catch (error) {
-    console.error('Get playback rate error:', error);
+    // Silently return default rate if player isn't initialized yet
+    // This is expected on app start before setupPlayer completes
+    // or when no track is loaded yet
     return 1.0; // Default rate
   }
 };
 
 // Handle playback errors
-export const handlePlaybackError = (error: any) => {
+export const handlePlaybackError = (error: unknown) => {
   console.error('Playback error:', error);
   
   // You can add error reporting here
   // Example: report to crash analytics
   // crashlytics().recordError(error);
   
+  const errorObj = error as { message?: string; code?: string } | null;
   return {
-    message: error?.message || 'Unknown playback error',
-    code: error?.code || 'UNKNOWN_ERROR',
+    message: errorObj?.message || 'Unknown playback error',
+    code: errorObj?.code || 'UNKNOWN_ERROR',
   };
 };
 
