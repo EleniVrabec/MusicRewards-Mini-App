@@ -12,3 +12,13 @@ react-native/test-app/android/
 **/build/
 **/coverage/
 
+# Video files (too large for git)
+*.mp4
+*.MP4
+*.mov
+*.MOV
+*.avi
+*.mkv
+*.webm
+video_presentation.*
+
