@@ -1,18 +1,44 @@
 // Home screen - Challenge list (Expo Router)
 import React from 'react';
-import { View, Text, StyleSheet, FlatList } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import { router } from 'expo-router';
-import { ChallengeCard } from '../../components/challenge/ChallengeCard';
+import { ChallengeList } from '../../components/challenge/ChallengeList';
 import { useMusicPlayer } from '../../hooks/useMusicPlayer';
-import { useMusicStore, selectChallenges, selectCurrentTrack, selectIsPlaying } from '../../stores/musicStore';
-import { THEME } from '../../constants/theme';
+import { useMusicStore, selectCurrentTrack, selectIsPlaying } from '../../stores/musicStore';
+import { useTheme } from '../../hooks/useTheme';
 import type { MusicChallenge } from '../../types';
+import { useChallenges } from '../../hooks/useChallenges';
+
+const createStyles = (THEME: ReturnType<typeof useTheme>) => StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: THEME.colors.background,
+    paddingHorizontal: THEME.spacing.md,
+    //paddingTop: THEME.spacing.lg,
+  },
+  header: {
+    fontSize: THEME.fonts.sizes.xxl,
+    fontWeight: 'bold',
+    color: THEME.colors.text.primary,
+    marginBottom: THEME.spacing.sm,
+    marginTop: THEME.spacing.lg,
+    textAlign: 'center',
+  },
+  subtitle: {
+    fontSize: THEME.fonts.sizes.sm,
+    color: THEME.colors.text.secondary,
+    textAlign: 'center',
+    marginBottom: THEME.spacing.lg,
+  },
+});
 
 export default function HomeScreen() {
-  const challenges = useMusicStore(selectChallenges);
+  const { challenges, loading, error, refreshChallenges } = useChallenges();
   const currentTrack = useMusicStore(selectCurrentTrack);
   const isPlaying = useMusicStore(selectIsPlaying);
   const { play } = useMusicPlayer();
+  const THEME = useTheme();
+  const styles = createStyles(THEME);
 
   const handlePlayChallenge = async (challenge: MusicChallenge) => {
     try {
@@ -24,14 +50,9 @@ export default function HomeScreen() {
     }
   };
 
-  const renderChallenge = ({ item }: { item: MusicChallenge }) => (
-    <ChallengeCard
-      challenge={item}
-      onPlay={handlePlayChallenge}
-      isCurrentTrack={currentTrack?.id === item.id}
-      isPlaying={isPlaying}
-    />
-  );
+  const handleRefresh = async () => {
+    await refreshChallenges();
+  };
 
   return (
     <View style={styles.container}>
@@ -39,38 +60,16 @@ export default function HomeScreen() {
       <Text style={styles.subtitle}>
         Complete listening challenges to earn points and unlock achievements
       </Text>
-      <FlatList
-        data={challenges}
-        renderItem={renderChallenge}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.listContainer}
-        showsVerticalScrollIndicator={false}
+      <ChallengeList
+        challenges={challenges}
+        loading={loading}
+        error={error}
+        onPlay={handlePlayChallenge}
+        currentTrackId={currentTrack?.id || null}
+        isPlaying={isPlaying}
+        onRefresh={handleRefresh}
+        refreshing={loading}
       />
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: THEME.colors.background,
-    paddingHorizontal: THEME.spacing.md,
-    paddingTop: THEME.spacing.lg,
-  },
-  header: {
-    fontSize: THEME.fonts.sizes.xxl,
-    fontWeight: 'bold',
-    color: THEME.colors.text.primary,
-    marginBottom: THEME.spacing.sm,
-    textAlign: 'center',
-  },
-  subtitle: {
-    fontSize: THEME.fonts.sizes.sm,
-    color: THEME.colors.text.secondary,
-    textAlign: 'center',
-    marginBottom: THEME.spacing.lg,
-  },
-  listContainer: {
-    paddingBottom: THEME.spacing.xl,
-  },
-});
