@@ -1,11 +1,12 @@
 // Home screen - Challenge list (Expo Router)
-import React from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { router } from 'expo-router';
 import { ChallengeList } from '../../components/challenge/ChallengeList';
 import { useMusicPlayer } from '../../hooks/useMusicPlayer';
 import { useMusicStore, selectCurrentTrack, selectIsPlaying } from '../../stores/musicStore';
 import { useTheme } from '../../hooks/useTheme';
+import { useThemeStore } from '../../stores/themeStore';
 import type { MusicChallenge } from '../../types';
 import { useChallenges } from '../../hooks/useChallenges';
 
@@ -15,9 +16,10 @@ export default function HomeScreen() {
   const isPlaying = useMusicStore(selectIsPlaying);
   const { play } = useMusicPlayer();
   const THEME = useTheme();
-  const styles = createStyles(THEME);
+  const themeMode = useThemeStore((state) => state.themeMode);
+  const styles = useMemo(() => createStyles(THEME), [themeMode]);
 
-  const handlePlayChallenge = async (challenge: MusicChallenge) => {
+  const handlePlayChallenge = useCallback(async (challenge: MusicChallenge) => {
     try {
       await play(challenge);
       // Navigate to player modal after starting playback
@@ -25,11 +27,11 @@ export default function HomeScreen() {
     } catch (error) {
       console.error('Failed to play challenge:', error);
     }
-  };
+  }, [play]);
 
-  const handleRefresh = async () => {
+  const handleRefresh = useCallback(async () => {
     await refreshChallenges();
-  };
+  }, [refreshChallenges]);
 
   return (
     <View style={styles.container}>
