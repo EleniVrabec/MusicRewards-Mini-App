@@ -68,7 +68,7 @@ const PointsCounterComponent: React.FC<PointsCounterProps> = ({
       hapticService.pointsIncrease();
       
       // Scale animation on points increase
-      Animated.sequence([
+      const scaleAnimation = Animated.sequence([
         Animated.spring(scaleAnim, {
           toValue: 1.15,
           useNativeDriver: true,
@@ -81,9 +81,14 @@ const PointsCounterComponent: React.FC<PointsCounterProps> = ({
           tension: 100,
           friction: 4,
         }),
-      ]).start();
+      ]);
       
-      prevEarnedRef.current = earnedPoints;
+      scaleAnimation.start();
+      
+      // Cleanup: stop animation on unmount
+      return () => {
+        scaleAnimation.stop();
+      };
     }
   }, [earnedPoints, scaleAnim]);
 
@@ -91,11 +96,18 @@ const PointsCounterComponent: React.FC<PointsCounterProps> = ({
   const progressAnim = useRef(new Animated.Value(progressPercent)).current;
   
   useEffect(() => {
-    Animated.timing(progressAnim, {
+    const progressAnimation = Animated.timing(progressAnim, {
       toValue: Math.min(progressPercent, 100),
       duration: 300,
       useNativeDriver: false, // Width animation requires layout animations
-    }).start();
+    });
+    
+    progressAnimation.start();
+    
+    // Cleanup: stop animation on unmount
+    return () => {
+      progressAnimation.stop();
+    };
   }, [progressPercent, progressAnim]);
   
   return (
@@ -109,7 +121,12 @@ const PointsCounterComponent: React.FC<PointsCounterProps> = ({
         </Animated.View>
       </View>
 
-      <View style={styles.track}>
+      <View 
+        style={styles.track}
+        accessibilityRole="progressbar"
+        accessibilityLabel={`Points progress: ${earnedPoints} of ${targetPoints} points earned`}
+        accessibilityValue={{ min: 0, max: targetPoints, now: earnedPoints, text: `${earnedPoints} of ${targetPoints} points` }}
+      >
         <Animated.View
           style={[
             styles.fill,
