@@ -12,13 +12,13 @@ import { ChallengeCard } from './ChallengeCard';
 import { GlassCard } from '../ui/GlassCard';
 import { LoadingSpinner } from '../ui/LoadingSpinner';
 import { useTheme } from '../../hooks/useTheme';
+import { useThemeStore } from '../../stores/themeStore';
 import type { MusicChallenge } from '../../types';
 
 interface ChallengeListProps {
   challenges: MusicChallenge[];
   loading?: boolean;
   error?: string | null;
-  onPlay: (challenge: MusicChallenge) => void;
   currentTrackId?: string | null;
   isPlaying?: boolean;
   onRefresh?: () => void;
@@ -29,14 +29,14 @@ const ChallengeListComponent: React.FC<ChallengeListProps> = ({
   challenges,
   loading = false,
   error = null,
-  onPlay,
   currentTrackId,
   isPlaying = false,
   onRefresh,
   refreshing = false,
 }) => {
   const THEME = useTheme();
-  const styles = useMemo(() => createStyles(THEME), [THEME]);
+  const themeMode = useThemeStore((state) => state.themeMode);
+  const styles = useMemo(() => createStyles(THEME), [themeMode]);
 
   // Memoize refresh control
   const refreshControl = useMemo(
@@ -48,18 +48,17 @@ const ChallengeListComponent: React.FC<ChallengeListProps> = ({
         colors={[THEME.colors.accent]}
       />
     ) : undefined,
-    [onRefresh, refreshing, THEME.colors.accent]
+    [onRefresh, refreshing, themeMode]
   );
 
   // Memoize render function
   const renderChallenge = useCallback(({ item }: { item: MusicChallenge }) => (
     <ChallengeCard
       challenge={item}
-      onPlay={onPlay}
       isCurrentTrack={currentTrackId === item.id}
       isPlaying={isPlaying}
     />
-  ), [onPlay, currentTrackId, isPlaying]);
+  ), [currentTrackId, isPlaying]);
 
   // Memoize key extractor
   const keyExtractor = useCallback((item: MusicChallenge) => item.id, []);
