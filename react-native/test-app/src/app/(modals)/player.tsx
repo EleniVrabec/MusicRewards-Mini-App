@@ -194,6 +194,11 @@ export default function PlayerModal() {
               });
             }}
             disabled={loading || isBuffering}
+            accessibilityRole="adjustable"
+            accessibilityLabel={`Audio progress: ${Math.round(getProgress())}%`}
+            accessibilityValue={{ min: 0, max: 100, now: Math.round(getProgress()), text: `${formatTime(currentPosition)} of ${formatTime(duration)}` }}
+            accessibilityHint="Double tap and drag to seek to a different position in the track"
+            accessibilityState={{ disabled: loading || isBuffering }}
           >
             <View style={styles.progressBackground}>
               <View 
@@ -247,6 +252,8 @@ export default function PlayerModal() {
               variant="secondary"
               style={styles.controlButton}
               icon={<MaterialIcons name="replay-10" size={24} color={THEME.colors.text.primary} />}
+              accessibilityLabel="Rewind 10 seconds"
+              accessibilityHint="Double tap to go back 10 seconds in the track"
             />
             
             <GlassButton
@@ -260,6 +267,8 @@ export default function PlayerModal() {
               ) : (
                 <MaterialIcons name="play-arrow" size={24} color={THEME.colors.text.primary} />
               ))}
+              accessibilityLabel={loading ? "Loading" : isPlaying ? "Pause playback" : "Play audio"}
+              accessibilityHint={loading ? "Audio is loading" : isPlaying ? "Double tap to pause the current track" : "Double tap to start playback"}
             />
             
             <GlassButton
@@ -268,6 +277,8 @@ export default function PlayerModal() {
               variant="secondary"
               style={styles.controlButton}
               icon={<MaterialIcons name="forward-10" size={24} color={THEME.colors.text.primary} />}
+              accessibilityLabel="Forward 10 seconds"
+              accessibilityHint="Double tap to skip forward 10 seconds in the track"
             />
           </View>
 
@@ -290,6 +301,8 @@ export default function PlayerModal() {
                 }}
                 variant={playbackRate === rate ? 'primary' : 'secondary'}
                 style={styles.speedButton}
+                accessibilityLabel={`Playback speed ${rate === 1.0 ? '1x' : `${rate}x`}${playbackRate === rate ? ', currently selected' : ''}`}
+                accessibilityHint="Double tap to change playback speed"
               />
             ))}
           </View>
@@ -329,7 +342,7 @@ export default function PlayerModal() {
           origin="center"             // explosion from center (use "top" for falling rain)
           explosionSpeed={400}        // speed of the burst
           fallSpeed={3000}            // how long the confetti stays on screen
-          onComplete={() => console.log('🎉 Confetti finished!')}
+          onComplete={() => {}}
         />
 
     </SafeAreaView>
