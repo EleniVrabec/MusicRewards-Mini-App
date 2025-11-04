@@ -53,7 +53,14 @@ export const useMusicStore = create<MusicStore>()(
       },
 
       setCurrentTrack: (track: MusicChallenge) => {
-        set({ currentTrack: track });
+        // Always get the latest version of the challenge from the store
+        // to ensure we have the most up-to-date progress and completion status
+        set((state) => {
+          const latestChallenge = state.challenges.find(c => c.id === track.id);
+          return {
+            currentTrack: latestChallenge || track, // Fallback to passed track if not found
+          };
+        });
       },
 
       updateProgress: (challengeId: string, progress: number) => {
