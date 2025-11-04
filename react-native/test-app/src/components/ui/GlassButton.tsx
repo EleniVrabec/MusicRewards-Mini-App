@@ -24,42 +24,6 @@ interface GlassButtonProps {
   icon?: React.ReactNode;
 }
 
-const createStyles = (THEME: ReturnType<typeof useTheme>) => StyleSheet.create({
-  button: {
-    height: 52, // Fixed height for all buttons
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  buttonContent: {
-    width: '100%',
-    height: '100%',
-    justifyContent: 'center',
-    alignItems: 'center',
-    //paddingHorizontal: THEME.spacing.sm,
-  },
-  buttonInner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  iconContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  iconContainerWithText: {
-   // marginRight: THEME.spacing.xs,
-  },
-  iconOnlyContainer: {
-    marginRight: 0,
-  },
-  buttonText: {
-    color: THEME.colors.text.primary,
-    fontSize: THEME.fonts.sizes.md,
-    fontWeight: '600',
-    textAlign: 'center',
-    flexShrink: 1,
-  },
-});
 
 export const GlassButton: React.FC<GlassButtonProps> = ({
   title,
@@ -111,7 +75,7 @@ export const GlassButton: React.FC<GlassButtonProps> = ({
               <Text 
                 style={[styles.buttonText, textStyle]}
                 numberOfLines={1}
-                adjustsFontSizeToFit
+               // adjustsFontSizeToFit
                 minimumFontScale={0.7}
               >
                 {title}
@@ -124,3 +88,39 @@ export const GlassButton: React.FC<GlassButtonProps> = ({
   );
 };
 
+const createStyles = (THEME: ReturnType<typeof useTheme>) => StyleSheet.create({
+  button: {
+    height: 54, // Fixed height for all buttons
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  buttonContent: {
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  buttonInner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: THEME.spacing.xs,
+  },
+  iconContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  iconContainerWithText: {
+   // marginRight: THEME.spacing.xs,
+  },
+  iconOnlyContainer: {
+    marginRight: 0,
+  },
+  buttonText: {
+    color: THEME.colors.text.primary,
+    fontSize: THEME.fonts.sizes.md,
+    fontWeight: '600',
+    textAlign: 'center',
+    flexShrink: 1,
+  },
+});
