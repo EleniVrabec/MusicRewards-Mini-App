@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Animated,
 } from 'react-native';
+import { MaterialIcons } from '@expo/vector-icons';
 import { useToastStore } from '../../stores/toastStore';
 import { THEME } from '../../constants/theme';
 import { GlassCard } from './GlassCard';
@@ -71,16 +72,18 @@ const ToastItem: React.FC<ToastItemProps> = ({ toast, onHide }) => {
   };
 
   const getIcon = () => {
+    const iconSize = 20;
+    const iconColor = THEME.colors.text.primary;
     switch (toast.type) {
       case 'success':
-        return '✅';
+        return <MaterialIcons name="check-circle" size={iconSize} color={iconColor} />;
       case 'error':
-        return '❌';
+        return <MaterialIcons name="error" size={iconSize} color={iconColor} />;
       case 'warning':
-        return '⚠️';
+        return <MaterialIcons name="warning" size={iconSize} color={iconColor} />;
       case 'info':
       default:
-        return 'ℹ️';
+        return <MaterialIcons name="info" size={iconSize} color={iconColor} />;
     }
   };
 
@@ -102,7 +105,7 @@ const ToastItem: React.FC<ToastItemProps> = ({ toast, onHide }) => {
             borderLeftColor: getToastColor(),
           }}
         >
-          <Text style={styles.icon}>{getIcon()}</Text>
+          <View style={styles.icon}>{getIcon()}</View>
           <Text style={styles.message}>{toast.message}</Text>
         </GlassCard>
       </TouchableOpacity>
@@ -130,7 +133,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: THEME.spacing.md,
   },
   icon: {
-    fontSize: 20,
     marginRight: THEME.spacing.sm,
   },
   message: {
