@@ -214,15 +214,17 @@ export default function ChallengeDetailScreen({ challenge }: ChallengeDetailScre
       </GlassCard>
 
       {/* Action Button */}
-      <View style={styles.actionSection}>
-        <GlassButton
-          title={buttonTitle}
-          onPress={handlePrimaryPress}
-          variant="primary"
-          disabled={challenge.completed}
-          icon={getButtonIcon()}
-        />
-      </View>
+          <View style={styles.actionSection}>
+            <GlassButton
+              title={buttonTitle}
+              onPress={handlePrimaryPress}
+              variant="primary"
+              disabled={challenge.completed}
+              icon={getButtonIcon()}
+              accessibilityLabel={challenge.completed ? `Challenge completed: ${challenge.title}` : `${buttonTitle}: ${challenge.title}`}
+              accessibilityHint={challenge.completed ? 'This challenge is already completed' : 'Double tap to start playing this challenge'}
+            />
+          </View>
     </ScrollView>
   );
 }
