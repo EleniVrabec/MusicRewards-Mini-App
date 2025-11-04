@@ -43,8 +43,9 @@ export const useChallenges = (): UseChallengesReturn => {
         // 1) mark in music store (so progress = 100, completed = true)
         markChallengeComplete(challengeId);
 
-        // 2) find how many points that challenge had
-        const challenge = challenges.find((c) => c.id === challengeId);
+        // 2) find how many points that challenge had (read from store to avoid dependency)
+        const currentChallenges = useMusicStore.getState().challenges;
+        const challenge = currentChallenges.find((c) => c.id === challengeId);
         if (challenge) {
           // 3) mark in user store
           completeUserChallenge(challengeId);
@@ -54,7 +55,7 @@ export const useChallenges = (): UseChallengesReturn => {
         setError('Failed to complete challenge');
       }
     },
-    [markChallengeComplete, challenges, completeUserChallenge, addPoints]
+    [markChallengeComplete, completeUserChallenge, addPoints]
   );
 
   return {
