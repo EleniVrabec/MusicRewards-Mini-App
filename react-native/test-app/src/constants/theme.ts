@@ -57,14 +57,14 @@ export const THEME_LIGHT = {
     primary: '#7553DB',     // Belong purple (same)
     secondary: '#34CB76',   // Belong green (same)
     accent: '#FCBE25',      // Belong yellow (same)
-    background: '#FFFFFF',  // Light background - pure white for better contrast
-    glass: 'rgba(0, 0, 0, 0.08)',
+    background: '#F2F2F4',  // Soft off-white background with slight gray tint for better glass visibility
+    glass: 'rgba(0, 0, 0, 0.06)',
     text: {
-      primary: '#000000',   // Pure black for maximum contrast
-      secondary: 'rgba(0, 0, 0, 0.8)',  // High contrast for secondary text
-      tertiary: 'rgba(0, 0, 0, 0.6)',   // Better contrast for tertiary text
+      primary: '#1D1D1F',   // Soft black (not pure black, easier on eyes)
+      secondary: 'rgba(29, 29, 31, 0.8)',  // High contrast for secondary text
+      tertiary: 'rgba(29, 29, 31, 0.6)',   // Better contrast for tertiary text
     },
-    border: 'rgba(0, 0, 0, 0.15)',
+    border: 'rgba(0, 0, 0, 0.12)',
   },
   fonts: {
     regular: 'System',
@@ -93,11 +93,11 @@ export const THEME_LIGHT = {
     lg: 24,
   },
   glass: {
-    blurIntensity: 20,
+    blurIntensity: 40,
     gradientColors: {
       primary: ['rgba(117, 83, 219, 0.15)', 'rgba(117, 83, 219, 0.08)'],
-      secondary: ['rgba(255, 255, 255, 0.98)', 'rgba(255, 255, 255, 0.95)'], // Very high opacity for better contrast
-      card: ['rgba(255, 255, 255, 1)', 'rgba(255, 255, 255, 0.98)'], // Near solid white for maximum text contrast
+      secondary: ['rgba(229, 229, 229, 0.56)', 'rgba(223, 220, 220, 0.6)'],
+      card: ['rgba(229, 229, 229, 0.84)', 'rgba(223, 220, 220, 0.65)'], // Glass-like transparency - you can see through it
     }
   }
 };
