@@ -9,29 +9,6 @@ import { useTheme } from '../../hooks/useTheme';
 import type { MusicChallenge } from '../../types';
 import { useChallenges } from '../../hooks/useChallenges';
 
-const createStyles = (THEME: ReturnType<typeof useTheme>) => StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: THEME.colors.background,
-    paddingHorizontal: THEME.spacing.md,
-    //paddingTop: THEME.spacing.lg,
-  },
-  header: {
-    fontSize: THEME.fonts.sizes.xxl,
-    fontWeight: 'bold',
-    color: THEME.colors.text.primary,
-    marginBottom: THEME.spacing.sm,
-    marginTop: THEME.spacing.lg,
-    textAlign: 'center',
-  },
-  subtitle: {
-    fontSize: THEME.fonts.sizes.sm,
-    color: THEME.colors.text.secondary,
-    textAlign: 'center',
-    marginBottom: THEME.spacing.lg,
-  },
-});
-
 export default function HomeScreen() {
   const { challenges, loading, error, refreshChallenges } = useChallenges();
   const currentTrack = useMusicStore(selectCurrentTrack);
@@ -73,3 +50,25 @@ export default function HomeScreen() {
     </View>
   );
 }
+
+const createStyles = (THEME: ReturnType<typeof useTheme>) => StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: THEME.colors.background,
+    paddingHorizontal: THEME.spacing.md,
+  },
+  header: {
+    fontSize: THEME.fonts.sizes.xxl,
+    fontWeight: 'bold',
+    color: THEME.colors.text.primary,
+    marginBottom: THEME.spacing.sm,
+    marginTop: THEME.spacing.lg,
+    textAlign: 'center',
+  },
+  subtitle: {
+    fontSize: THEME.fonts.sizes.sm,
+    color: THEME.colors.text.secondary,
+    textAlign: 'center',
+    marginBottom: THEME.spacing.lg,
+  },
+});
