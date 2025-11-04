@@ -102,7 +102,13 @@ const ChallengeCardComponent: React.FC<ChallengeCardProps> = ({
       style={cardStyle}
       gradientColors={gradientColors}
     >
-      <TouchableOpacity activeOpacity={0.8} onPress={openDetail}>
+      <TouchableOpacity 
+        activeOpacity={0.8} 
+        onPress={openDetail}
+        accessibilityRole="button"
+        accessibilityLabel={`${challenge.title} by ${challenge.artist}. ${challenge.difficulty} difficulty. ${challenge.points} points. ${Math.round(challenge.progress)}% complete`}
+        accessibilityHint="Double tap to view challenge details"
+      >
       <View style={styles.header}>
         <View style={styles.titleSection}>
           <Text style={styles.title}>{challenge.title}</Text>
@@ -137,7 +143,12 @@ const ChallengeCardComponent: React.FC<ChallengeCardProps> = ({
       </View>
 
       {challenge.progress > 0 && (
-        <View style={styles.progressContainer}>
+        <View 
+          style={styles.progressContainer}
+          accessibilityRole="progressbar"
+          accessibilityLabel={`Challenge progress: ${Math.round(challenge.progress)}%`}
+          accessibilityValue={{ min: 0, max: 100, now: Math.round(challenge.progress) }}
+        >
           <View style={styles.progressTrack}>
             <View style={progressFillStyle} />
           </View>
@@ -151,6 +162,8 @@ const ChallengeCardComponent: React.FC<ChallengeCardProps> = ({
         disabled={challenge.completed}
         style={styles.playButton}
         icon={buttonIcon}
+        accessibilityLabel={challenge.completed ? `Challenge completed: ${challenge.title}` : `${buttonTitle}: ${challenge.title}`}
+        accessibilityHint={challenge.completed ? 'This challenge is already completed' : 'Double tap to play this challenge'}
       />
       </TouchableOpacity>
     </GlassCard>
